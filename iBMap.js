@@ -123,13 +123,6 @@ var iBMap = {
         return iBMap
     },
 
-    fn : {
-        openInfo : function(){
-            
-        }  
-    },
-
-
     /**
      * marker 单标记
      * @desc 添加单个标记
