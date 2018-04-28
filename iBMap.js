@@ -195,7 +195,8 @@ var iBMap = {
      * markers 多标记
      * @desc 批量添加多个标记
      * @param {object} 可集中设置统一的选项，必须包含data数组，data数组中的各项属性会覆写集中设置的值
-     * @param {object} 返回iBMap对象
+     * @param {function} callback 点击标记后执行的回调函数，传入iBMap地理信息geo对象
+     * @returns {object} 返回iBMap对象
      */
     markers: function (geo, callback) {
         if (!geo.data || !Array.isArray(geo.data)) {
@@ -268,8 +269,12 @@ var iBMap = {
         return iBMap
     },
 
-    //以下通过URI API调起百度地图嵌入iframe，无需AK，无需初始化
+    //URI下挂载URI API快捷调起百度地图嵌入iframe，无需AK，无需初始化
     URI: {
+        /**
+         * @param {string} iframeID iframe的ID
+         * @param {object} geo iBMap geo 地理对象
+         */
         marker: function (iframeID, geo) {
             var mapurl = 'http://api.map.baidu.com/marker?' +
                 'location=' + geo.lat + ',' + geo.lng +
