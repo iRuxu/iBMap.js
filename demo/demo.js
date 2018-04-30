@@ -1,22 +1,5 @@
-jQuery(function ($) {
-
-    //初始化
-    iBMap.init('jKIIKKqQqspECMVMdZZGcXsGRj62sPQS', 'map')
-
-    //正地理编码
-    iBMap.geocode('北京市海淀区上地十街10号')
-
-    //定位中心点与缩放倍数
-    iBMap.position({
-        lng:112.81271748030389,
-        lat:45.16277754545299,
-        zoom:5
-    })
-
-    //快速定位到中国全貌
-    iBMap.cn()
-    
-    //单点标记
+//单点标记
+function marker(){
     iBMap.marker({
         lng : 116.307852,   //地理纬度
         lat : 40.057031,    //地理经度
@@ -30,8 +13,10 @@ jQuery(function ($) {
         },
         status:true,
     })
+}
 
-    //多点标记
+//多点标记
+function markers(){
     iBMap.markers({
         center: { lng: 116.417854, lat: 39.921988 },
         zoom : 5,
@@ -64,13 +49,34 @@ jQuery(function ($) {
             }
         ]
     })
+}
 
-    //URI快速调起
-    iBMap.URI.marker('mapx',{
+//URI快速调起
+function urimarker(){
+    iBMap.URI.marker('map2',{
         lat:39.916979519873,
         lng:116.41004950566
     })
+}
 
-    console.log(iBMap)
+jQuery(function($){
+    //初始化
+    iBMap.init('jKIIKKqQqspECMVMdZZGcXsGRj62sPQS', 'map')
+
+    //正地理编码
+    iBMap.geocode('北京市海淀区中关村中国人民大学')
+    iBMap.geocode('湖南省长沙市韶山路中南大学铁道学院')
+    iBMap.geocode('广东省深圳市南山科技园')
+
+    $('.panel li').on('click',function (){
+        $(this).addClass('on').siblings().removeClass('on')
+        $('.map').removeClass('on')
+    })
+    $('.fn_default').on('click',function (){
+        $('.default_map').addClass('on')
+    })
+    $('.fn_uri').on('click',function (){
+        $('.iframe_map').addClass('on')
+    })
 
 });

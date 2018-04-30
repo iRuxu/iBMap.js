@@ -1,0 +1,61 @@
+@import url('reset.less');
+@import url('base.less');
+
+body {
+    background-color: #f2f2f2;
+    .lh(2);
+}
+h1{
+    .bold;
+}
+.container{
+    width: 1200px;
+    .auto(x);
+}
+.tab{
+    background-color:#08f;
+    color:#fff;
+    list-style:none;
+    .clearfix;
+    li{
+        .fl;
+        padding:0 10px;
+        .pointer;
+    }
+    .active{
+        .bold;
+        color:#ff0;
+    }
+    border: 1px solid #ddd;
+}
+.mapbox{
+    .size(100%,600px);  
+    .pr; 
+}
+.map{
+    border: 1px solid #ddd;
+    .full;
+    background-color: #fff;
+    .pa;.lt(0,0);
+    .z(1);
+    &.on{
+        .z(2);
+    }
+}
+
+.panel{
+    .clearfix;
+    margin-top:20px;
+    li{
+        .fl;margin-right:10px;
+        padding:0 10px;
+        .pointer;
+        background-color:#fff;
+        .r(4px);
+        border:1px solid #ddd;
+    }
+    .on{
+        background-color:#39f;
+        color:#fff;
+    }
+}
