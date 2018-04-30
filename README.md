@@ -1,4 +1,5 @@
 # iBMap
+DEMO: [http://iruxu.com/iBMap/demo]
 
 ### 一、使用Javascript API调起
 #### Step.1 引入js文件
