@@ -1,7 +1,7 @@
 # iBMap
 
-## 一、使用Javascript API调起
-**Step.1 引入js文件**
+### 一、使用Javascript API调起
+#### Step.1 引入js文件
 
 加载依赖文件 （*如仅使用URI API，可不加载下列文件*）
 ```html
@@ -9,26 +9,23 @@
 <script src="http://api.map.baidu.com/api?v=2.0&ak=你的AK"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.js"></script>
 <link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.css" />
-```
-加载iBMap.js与本地文件
-```html
 <script src="$youpath/iBMap.js"></script> 
 ```
 
-**Step.2 初始化**
+#### Step.2 初始化
 ```javascript
 iBMap.init('百度AK', '加载地图的id')
 //此外需在样式中指定该元素的宽高
 ```
 
-**Step.3 调用方法**
-函数名(参数) | 描述 | 备注
-- | :-: | -:
-iBMap.geocode(string,callback(geo)) | 对传入的字符串地址进行正地理解析 | 回调函数中传入一个Web API返回处理后的geo对象
-iBMap.position(geo) | 传入一个iBMap geo地理对象，定位到指定位置为中心点 |
-iBMap.cn | 快速定位到中国全貌 | 
-iBMap.marker(geo) | 单标记，标记传入的iBMap geo地理对象(见下方) | 如数据是异步回调则可循环该方法创建
-iBMap.markers(geos) | 多标记，一次性批量标记多个点(见下方) | data数组中单个的属性可以覆盖统一定义值，信息窗status只能有一个设置为true
+#### Step.3 调用方法
+| 函数名(参数) | 描述 | 备注   |
+|-------------| -----| ------|
+| iBMap.geocode(string,callback(geo)) | 对传入的字符串地址进行正地理解析 | 回调函数中传入一个Web API返回处理后的geo对象
+| iBMap.position(geo) | 传入一个iBMap geo地理对象，定位到指定位置为中心点 | - |
+| iBMap.cn | 快速定位到中国全貌 | - |
+| iBMap.marker(geo) | 单标记，标记传入的iBMap geo地理对象(见下方) | 如数据是异步回调则可循环该方法创建 |
+| iBMap.markers(geos) | 多标记，一次性批量标记多个点(见下方) | data数组中单个的属性可以覆盖统一定义值，信息窗status只能有一个设置为true |
 
 
 **iBMap geo地理对象格式**
@@ -85,17 +82,18 @@ iBMap.markers(geos) | 多标记，一次性批量标记多个点(见下方) | da
 }
 ```
 
-## 二、使用URI API调起
+### 二、使用URI API调起
 无需ak，无需初始化
 
-函数名(参数) | 描述 | 备注
-- | :-: | -:
-iBMap.URI.marker(id,geo) | 传入iframe的ID与iBMap geo对象，标记单个点 | 
+| 函数名(参数) | 描述 | 备注 |
+|------------ |-----| ---- |
+| iBMap.URI.marker(id,geo) | 传入iframe的ID与iBMap geo对象，标记单个点 | 
 
-注意事项：
+**注意事项：**
+
 如果你的地图调起是通过弹窗打开，即如果地图装载的容器默认并未渲染（比如设置了display:none），则地图无法正常加载。
 
-替代的方案：
+解决方法：
 
 a.设置fixed定位，并且设置一个较大的偏移值，例如margin:5000px，当触发时再修正位置
 
