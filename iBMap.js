@@ -7,7 +7,7 @@
 
 var iBMap = {
 
-    version: '1.0',
+    version: '1.1',
     github: 'git@github.com:iRuxu/iBMap.git',
 
     //缓存创建的百度地图实例对象
@@ -44,15 +44,22 @@ var iBMap = {
         },
     },
 
+    //缓存当前全部geo备用
+    geolist:[],
+
     //主方法需在页面加载api文件及SearchInfoWindow插件相关文件
     /**
      * init 初始化
      * @desc 创建百度地图实例对象，控件控制
-     * @param {string} ak 百度ak密钥
-     * @param {string} selectorID 选择器id
-     * @returns {object} 返回iBMap对象
+     * @param {String} ak 百度ak密钥
+     * @param {String} selectorID 选择器id
+     * @returns {Object} 返回iBMap对象
      */
-    init: function (ak, selectorID) {
+    init: function (ak, selectorID,geo) {
+        if (!ak || !selectorID) {
+            console.error('[iBMap]初始化失败，传入的AK或选择器ID不正确')
+            return
+        }
         iBMap.ak = ak
         iBMap.BMap = new BMap.Map(selectorID);
 
@@ -60,18 +67,22 @@ var iBMap = {
         iBMap.BMap.addControl(new BMap.NavigationControl());
         iBMap.BMap.enableScrollWheelZoom();
 
+        //设置默认的geo信息
+        !!geo && (iBMap.geo = geo)
+
         return iBMap
     },
 
     /**
      * geocode 正地理编码
      * @desc 将字符串转为iBMap地理信息geo对象
-     * @param {string} queryAddress 查询的字符串
-     * @param {function} callback 查询接口获取编码后执行的回调函数，传入一个iBMap地理信息geo对象
+     * @param {String} queryAddress 查询的字符串
+     * @param {Function} callback 查询接口获取编码后执行的回调函数，传入一个iBMap地理信息geo对象
      */
     geocode: function (queryAddress, callback) {
         if (!queryAddress) {
             console.error('[iBMap]正地理编码失败，请输入有效的字符串地址')
+            return
         }
         $.ajax({
             url: 'http://api.map.baidu.com/geocoder/v2/',
@@ -86,7 +97,7 @@ var iBMap = {
                 var point = {}
                 point.lat = data.result.location.lat
                 point.lng = data.result.location.lng
-                console.log('[iBMap]正地理编码结果', point)
+                console.log('[iBMap]正地理编码结果', queryAddress, point)
                 !!callback && callback(point)
             },
             error: function () {
@@ -98,15 +109,17 @@ var iBMap = {
     /**
      * position 定位
      * @desc 定位中心坐标与放缩倍数
-     * @param {object} geo iBMap地理信息geo对象
+     * @param {Object} geo iBMap地理信息geo对象
      * @returns 返回iBMap对象
      */
-    position: function (geo) {
+    position: function (geo, callback) {
         iBMap._lng = geo.lng || iBMap.geo.lng
         iBMap._lat = geo.lat || iBMap.geo.lat
         iBMap._zoom = geo.zoom || iBMap.geo.zoom
         var point = new BMap.Point(geo.lng, geo.lat);
         iBMap.BMap.centerAndZoom(point, geo.zoom);
+
+        !!callback && callback();
 
         return iBMap
     },
@@ -116,34 +129,64 @@ var iBMap = {
      * @desc 快捷定位到中国概貌
      * @returns 返回iBMap对象
      */
-    cn: function () {
+    cn: function (callback) {
         var point = new BMap.Point(iBMap.geo.lng, iBMap.geo.lat);
-        iBMap.BMap.centerAndZoom(point,5);
+        iBMap.BMap.centerAndZoom(point, 5);
+
+        !!callback && callback();
 
         return iBMap
     },
 
     /**
+     * openInfo 信息窗
+     * @desc 创建信息窗并控制是否打开
+     * @param {Object} geo iBMap地理信息对象
+     * @param {Boolean} status 默认只创建，不打开
+     */
+    openInfo: function (geo, status) {
+        //创建检索信息窗口对象
+        var point = new BMap.Point(geo.lng, geo.lat);
+        var searchInfoWindow = new BMapLib.SearchInfoWindow(iBMap.BMap, geo.content, {
+            title: geo.title,      //标题
+            width: geo.width,      //宽度
+            height: geo.height,     //高度
+            panel: "panel",        //检索结果面板
+            enableAutoPan: true,    //自动平移
+            searchTypes: [
+                BMAPLIB_TAB_SEARCH,  //周边检索
+                BMAPLIB_TAB_TO_HERE, //到这里去
+                BMAPLIB_TAB_FROM_HERE//从这里出发
+            ]
+        });
+        !!status && searchInfoWindow.open(point, geo.zoom);
+    },
+
+    /**
      * marker 单标记
      * @desc 添加单个标记
-     * @param {object} geo iBMap地理信息geo对象
-     * @param {function} callback 点击标记后执行的回调函数，传入iBMap地理信息geo对象
-     * @returns {object} 返回iBMap对象
+     * @param {Object} geo iBMap地理信息geo对象
+     * @param {Function} callback 点击标记后执行的回调函数，传入iBMap地理信息geo对象
+     * @returns {Object} 返回iBMap对象
      */
     marker: function (geo, callback) {
 
         if (!geo.lng || !geo.lat) {
             console.error('[iBMap]添加标记失败,传入的地理信息对象有误')
+            return
         }
 
         //重定义当前iBMap属性
         iBMap._lng = geo.lng
         iBMap._lat = geo.lat
-        iBMap._zoom = geo.zoom || iBMap.geo.zoom
-        iBMap._title = geo.title || ''
-        iBMap._content = geo.content || ''   //可以为自定义html
-        iBMap._width = geo.width || iBMap.geo.width
-        iBMap._height = geo.height || iBMap.geo.height
+        iBMap._zoom = geo.zoom = !!geo.zoom ? geo.zoom : iBMap.geo.zoom
+        iBMap._title = geo.title = !!geo.title ? geo.title : ''
+        iBMap._content = geo.content = !!geo.content ? geo.content : ''   //可以为自定义html
+        iBMap._width = geo.width = !!geo.width ? geo.width : iBMap.geo.width 
+        iBMap._height = geo.height = !!geo.height ? geo.height : iBMap.geo.height
+
+        //推入缓存数组中
+        iBMap.geolist.push(geo)
 
         //创建坐标点
         var point = new BMap.Point(geo.lng, geo.lat);
@@ -162,109 +205,13 @@ var iBMap = {
         //绑定标记点击事件
         function addClickHandler(geo) {
             marker.addEventListener("click", function (e) {
-                openInfo()
+                iBMap.openInfo(geo,true)
                 !!callback && callback(geo)
-            }
-            );
-        }
-
-        //创建检索信息窗口对象
-        function openInfo() {
-            var searchInfoWindow = new BMapLib.SearchInfoWindow(iBMap.BMap, iBMap._content, {
-                title: iBMap._title,      //标题
-                width: iBMap._width,      //宽度
-                height: iBMap._height,     //高度
-                panel: "panel",        //检索结果面板
-                enableAutoPan: true,    //自动平移
-                searchTypes: [
-                    BMAPLIB_TAB_SEARCH,  //周边检索
-                    BMAPLIB_TAB_TO_HERE, //到这里去
-                    BMAPLIB_TAB_FROM_HERE//从这里出发
-                ]
             });
-            searchInfoWindow.open(point, iBMap._zoom);
         }
 
         //是否默认显示信息窗
-        !!geo.status && openInfo()
-
-        return iBMap
-    },
-
-    /**
-     * markers 多标记
-     * @desc 批量添加多个标记
-     * @param {object} 可集中设置统一的选项，必须包含data数组，data数组中的各项属性会覆写集中设置的值
-     * @param {function} callback 点击标记后执行的回调函数，传入iBMap地理信息geo对象
-     * @returns {object} 返回iBMap对象
-     */
-    markers: function (geo, callback) {
-        if (!geo.data || !Array.isArray(geo.data)) {
-            console.error('[iBMap]传入的标记数据有误')
-        }
-
-        //重定义当前iBMap属性
-        iBMap._lng = geo.center.lng || iBMap.geo.lng
-        iBMap._lat = geo.center.lat || iBMap.geo.lat
-        iBMap._zoom = geo.zoom || iBMap.geo.zoom
-        iBMap._width = geo.width || iBMap.geo.width
-        iBMap._height = geo.height || iBMap.geo.height
-        iBMap._title = geo.title ||  iBMap.geo.title
-        iBMap._content = geo.content || iBMap.geo.content
-
-        //设置中心坐标点
-        iBMap.BMap.centerAndZoom(new BMap.Point(geo.center.lng, geo.center.lat), iBMap._zoom);
-
-        //批量添加标记
-        for (var i = 0; i < geo.data.length; i++) {
-
-            if (geo.data[i]['icon']) {
-                var myIcon = new BMap.Icon(geo.data[i]['icon']['url'], new BMap.Size(geo.data[i]['icon']['width'], geo.data[i]['icon']['height']));
-                var marker = new BMap.Marker(new BMap.Point(geo.data[i]['lng'], geo.data[i]['lat']), { icon: myIcon });
-            } else {
-                var marker = new BMap.Marker(new BMap.Point(geo.data[i]['lng'], geo.data[i]['lat']));
-            }
-
-            iBMap.BMap.addOverlay(marker);
-            addClickHandler(geo.data[i]);
-
-            //默认显示指定的一个属性的信息窗,只能设置一个
-            !!geo.data[i].status && openInfo(geo.data[i])   
-        }
-
-        //绑定标记点击事件，并添加回调
-        function addClickHandler(geo) {
-            marker.addEventListener("click", function (e) {
-                openInfo(geo)
-                !!callback && callback(geo)
-            }
-            );
-        }
-
-        //创建信息窗
-        function openInfo(geo) {
-
-            //如果批量标注有进行全局设置
-            var content = geo.content || iBMap._content
-            var title = geo.title || iBMap._title
-            var width = geo.width || iBMap._width
-            var height = geo.height || iBMap._height
-
-            var point = new BMap.Point(geo.lng, geo.lat);
-            var searchInfoWindow = new BMapLib.SearchInfoWindow(iBMap.BMap,content, {
-                title: title,
-                width: width,      //宽度
-                height: height,     //高度
-                panel: "panel",        //检索结果面板
-                enableAutoPan: true,    //自动平移
-                searchTypes: [
-                    BMAPLIB_TAB_SEARCH,  //周边检索
-                    BMAPLIB_TAB_TO_HERE, //到这里去
-                    BMAPLIB_TAB_FROM_HERE//从这里出发
-                ]
-            });
-            searchInfoWindow.open(point, iBMap._zoom)
-        }
+        !!geo.status && iBMap.openInfo(geo,true)
 
         return iBMap
     },

@@ -15,22 +15,20 @@
 
 #### Step.2 初始化
 ```javascript
-iBMap.init('百度AK', '加载地图的id')
+iBMap.init('百度AK', '加载地图的id',[初始化的geo对象,用于缺省替代])
 ```
 
 #### Step.3 调用方法
 | 函数名(参数) | 描述 | 备注   |
 |-------------| -----| ------|
 | iBMap.geocode(string,callback(geo)) | 对传入的字符串地址进行正地理解析 | 回调函数中传入一个Web API返回处理后的geo对象
-| iBMap.position(geo) | 传入一个iBMap geo地理对象，定位到指定位置为中心点 | - |
-| iBMap.cn() | 快速定位到中国全貌 | - |
-| iBMap.marker(geo) | 单标记，标记传入的iBMap geo地理对象(见下方) | 如数据是异步回调则可循环该方法创建 |
-| iBMap.markers(geos) | 多标记，一次性批量标记多个点(见下方) | data数组中单个的属性可以覆盖统一定义值，信息窗status只能有一个设置为true |
-
+| iBMap.position(geo,callback) | 传入一个iBMap geo地理对象，定位到指定位置为中心点 | - |
+| iBMap.cn(callback) | 快速定位到中国全貌 | - |
+| iBMap.openInfo(geo,status) | 创建信息窗实例是否打开 | - |
+| iBMap.marker(geo,callback(geo)) | 标记位置，点击执行回调 | 回调参数是标记的geo信息 |
 
 **iBMap geo地理对象格式**
 ```javascript
-//geo
 {
     lng : 116.307852,   //地理纬度，必须*
     lat : 40.057031,    //地理经度，必须*
@@ -45,40 +43,6 @@ iBMap.init('百度AK', '加载地图的id')
         height:170
     },  
     status:true    //默认是否显示标记，同一时间只能打开一个
-}
-```
-
-```javascript
-//geos
-{
-    center: { lng: 116.417854, lat: 39.921988 },    //中心点
-    zoom : 5,   //全局缩放倍数
-    title : '公共通用的标题',   //默认标题
-    content : '公共通用的描述', //默认描述，可为自定html
-    data: [ //geo数组
-        {
-            lng: 116.417854,
-            lat: 39.921988,
-            title: '小姐姐',    //覆盖默认值
-            content: "地址1号",  //覆盖默认值
-            icon: { //自定义图标
-                url:'http://lbsyun.baidu.com/jsdemo/img/fox.gif',
-                width:300,
-                height:170
-            },
-            status:true //此位置默认展开信息窗
-        },
-        {
-            lng: 116.406605,
-            lat: 39.921585,
-            content: "地址2号"
-        },
-        {
-            lng: 116.412222,
-            lat: 39.912345,
-            content: "地址3号",
-        }
-    ]
 }
 ```
 
