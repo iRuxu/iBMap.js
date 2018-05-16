@@ -14,7 +14,7 @@
 
 #### Step.2 初始化
 ```javascript
-iBMap.init('百度AK', '加载地图的id',[初始化的geo对象,用于缺省替代])
+iBMap.init('百度AK', '加载地图的id',{可选,初始化的geo对象,用于缺省替代})
 ```
 
 #### Step.3 调用方法
@@ -41,7 +41,7 @@ iBMap.init('百度AK', '加载地图的id',[初始化的geo对象,用于缺省�
         width:360,
         height:170
     },  
-    status:true    //默认是否显示标记，同一时间只能打开一个
+    status:true    //默认是否开启信息窗，同一时间只能打开一个
 }
 ```
 
